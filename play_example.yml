@@ -1,0 +1,58 @@
+---
+- name: config_interface
+  hosts: ne_test
+  connection: netconf
+  gather_facts: no
+  vars:
+    netconf:
+      host: "{{ inventory_hostname }}"
+      port: "{{ ansible_ssh_port }}"
+      username: "{{ ansible_user }}"
+      password: "{{ ansible_ssh_pass }}"
+      transport: netconf
+
+  tasks:
+
+  - name: config_interfaca_example
+    config_interface:
+      operation_type: config
+      operation_specs: 
+        - path: /config/dhcp/relay/global
+          operation: merge
+        - path: /config/ifm/interfaces/interface
+          operation: create
+        - path: /config/ifm/interfaces/interface/ipv4/addresses/address
+          operation: create
+        - path: /config/ifm/interfaces/interface/multicast-bas
+          operation: create
+      dhcp: 
+        relay: 
+          global: 
+            user-detect-interval: 20
+            user-autosave-flag: false
+            user-store-interval: 300
+            distribute-flag: false
+            opt82-inner-vlan-insert-flag: false
+      ifm: 
+        interfaces: 
+          - interface: 
+              name: "Ethernet3/0/1.4092"
+              class: sub-interface
+              type: Ethernet
+              parent-name: "Ethernet3/0/1"
+              number: "4092"
+              admin-status: up
+              link-protocol: ethernet
+              router-type: broadcast
+              statistic-enable: false
+              protocol-up-delay-time: 0
+              ipv4: 
+                addresses: 
+                  - address: 
+                      ip: "192.168.1.23"
+                      mask: "255.255.255.0"
+                      type: main
+              multicast-bas: 
+                authorization-enable: false
+      provider: "{{ netconf }}"
+
